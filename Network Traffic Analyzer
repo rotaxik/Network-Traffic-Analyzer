@@ -1,0 +1,41 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report
+
+# Install necessary libraries
+!pip install pandas scikit-learn
+
+# Load the dataset
+df = pd.read_csv('/CTU-IoT-Malware-Capture-1-1conn.log.labeled.csv', sep = '|')
+
+# Data Preprocessing
+numerical_cols = ['duration', 'orig_bytes', 'resp_bytes', 'missed_bytes', 'orig_pkts', 'orig_ip_bytes', 'resp_pkts', 'resp_ip_bytes']
+categorical_cols = ['proto', 'service', 'conn_state', 'local_orig', 'local_resp', 'history', 'tunnel_parents', 'label', 'detailed-label']
+df[numerical_cols] = df[numerical_cols].fillna(0)
+df[categorical_cols] = df[categorical_cols].fillna('unknown')
+
+# 2. Convert categorical features to numerical using one-hot encoding
+df = pd.get_dummies(df, columns=categorical_cols, drop_first=True)
+
+# Feature and Target Selection
+df = df.replace('-', 0)
+X = df.drop(['label_Malicious', 'uid', 'id.orig_h', 'id.orig_p', 'id.resp_p', 'id.resp_h', 'ts'], axis=1)
+y = df['label_Malicious'] # Target variable ('Malicious' or 'Benign')
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.8, random_state=42)
+
+# Model Training
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+
+# Model Evaluation
+y_pred = model.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy:", accuracy)
+print(classification_report(y_test, y_pred, target_names=['Benign', 'Malicious'])) # Print amount of Malicious or Benign packets captured
+
+# Save Model
+import joblib
+joblib.dump(model, 'network_traffic_model.pkl')
