@@ -7,7 +7,7 @@ from sklearn.metrics import accuracy_score, classification_report
 !pip install pandas scikit-learn
 
 # Load the dataset
-df = pd.read_csv('/CTU-IoT-Malware-Capture-1-1conn.log.labeled.csv', sep = '|')
+df = pd.read_csv('', sep = '|') # Dataframe file path goes in between first ''
 
 # Data Preprocessing
 numerical_cols = ['duration', 'orig_bytes', 'resp_bytes', 'missed_bytes', 'orig_pkts', 'orig_ip_bytes', 'resp_pkts', 'resp_ip_bytes']
